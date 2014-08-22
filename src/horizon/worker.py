@@ -1,9 +1,10 @@
 from os import kill, system
-from redis import StrictRedis, WatchError
+from rediscluster import RedisCluster
 from multiprocessing import Process
 from Queue import Empty
 from msgpack import packb
 from time import time, sleep
+from redis import StrictRedis, WatchError
 
 import logging
 import socket
@@ -19,7 +20,8 @@ class Worker(Process):
     """
     def __init__(self, queue, parent_pid, skip_mini, canary=False):
         super(Worker, self).__init__()
-        self.redis_conn = StrictRedis(unix_socket_path = settings.REDIS_SOCKET_PATH)
+
+        self.redis_conn = RedisCluster(startup_nodes=settings.startup_nodes, decode_responses=True) 
         self.q = queue
         self.parent_pid = parent_pid
         self.daemon = True
@@ -76,7 +78,7 @@ class Worker(Process):
             except:
                 logger.error('worker can\'t connect to redis at socket path %s' % settings.REDIS_SOCKET_PATH)
                 sleep(10)
-                self.redis_conn = StrictRedis(unix_socket_path = settings.REDIS_SOCKET_PATH)
+                self.redis_conn = RedisCluster(startup_nodes=settings.startup_nodes, decode_responses=True)
                 pipe = self.redis_conn.pipeline()
                 continue
 
@@ -107,7 +109,6 @@ class Worker(Process):
                         pipe.sadd(mini_uniques, mini_key)
 
                     pipe.execute()
-
                 # Log progress
                 if self.canary:
                     logger.info('queue size at %d' % self.q.qsize())
@@ -121,3 +122,4 @@ class Worker(Process):
                 pass
             except Exception as e:
                 logger.error("worker error: " + str(e))
+

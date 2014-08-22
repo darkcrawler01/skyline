@@ -13,6 +13,7 @@ import operator
 import socket
 import settings
 
+from rediscluster import RedisCluster
 from alerters import trigger_alert
 from algorithms import run_selected_algorithm
 from algorithm_exceptions import *
@@ -26,8 +27,9 @@ class Analyzer(Thread):
         Initialize the Analyzer
         """
         super(Analyzer, self).__init__()
-        self.redis_conn = StrictRedis(unix_socket_path = settings.REDIS_SOCKET_PATH)
-        self.daemon = True
+        #self.redis_conn = StrictRedis(unix_socket_path = settings.REDIS_SOCKET_PATH)
+        self.redis_conn = RedisCluster(startup_nodes=settings.startup_nodes, decode_responses=True)
+	self.daemon = True
         self.parent_pid = parent_pid
         self.current_pid = getpid()
         self.anomalous_metrics = Manager().list()
@@ -90,7 +92,6 @@ class Analyzer(Thread):
                 unpacker = Unpacker(use_list = False)
                 unpacker.feed(raw_series)
                 timeseries = list(unpacker)
-
                 anomalous, ensemble, datapoint = run_selected_algorithm(timeseries, metric_name)
 
                 # If it's anomalous, add it to list
@@ -138,8 +139,9 @@ class Analyzer(Thread):
             except:
                 logger.error('skyline can\'t connect to redis at socket path %s' % settings.REDIS_SOCKET_PATH)
                 sleep(10)
-                self.redis_conn = StrictRedis(unix_socket_path = settings.REDIS_SOCKET_PATH)
-                continue
+               # self.redis_conn = StrictRedis(unix_socket_path = settings.REDIS_SOCKET_PATH)
+                self.redis_conn = RedisCluster(startup_nodes=settings.startup_nodes, decode_responses=True)
+		continue
 
             # Discover unique metrics
             unique_metrics = list(self.redis_conn.smembers(settings.FULL_NAMESPACE + 'unique_metrics'))

@@ -10,7 +10,7 @@ from os.path import dirname, join, realpath
 from multiprocessing import Manager, Process, log_to_stderr
 from struct import Struct, pack
 
-import redis
+from rediscluster import RedisCluster
 import msgpack
 
 # Get the current working directory of this file.
@@ -44,7 +44,7 @@ def seed():
             sock.sendto(packet, (socket.gethostname(), settings.UDP_PORT))
 
     print "Connecting to Redis..."
-    r = redis.StrictRedis(unix_socket_path=settings.REDIS_SOCKET_PATH)
+    r = RedisCluster(startup_nodes=settings.startup_nodes, decode_responses=True)
     time.sleep(5)
 
     try:

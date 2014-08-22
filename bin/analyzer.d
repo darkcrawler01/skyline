@@ -7,7 +7,7 @@ RETVAL=0
 
 start () {
     rm -f $BASEDIR/src/analyzer/*.pyc
-    /usr/bin/env python $BASEDIR/src/analyzer/analyzer-agent.py start
+    /usr/local/bin/python2.7 $BASEDIR/src/analyzer/analyzer-agent.py start
         RETVAL=$?
         if [[ $RETVAL -eq 0 ]]; then
             echo "started analyzer-agent"
@@ -20,7 +20,7 @@ start () {
 stop () {
     # TODO: write a real kill script
     ps aux | grep 'analyzer-agent.py start' | grep -v grep | awk '{print $2 }' | xargs sudo kill -9
-    /usr/bin/env python $BASEDIR/src/analyzer/analyzer-agent.py stop
+    /usr/local/bin/python2.7 $BASEDIR/src/analyzer/analyzer-agent.py stop
         RETVAL=$?
         if [[ $RETVAL -eq 0 ]]; then
             echo "stopped analyzer-agent"
@@ -32,7 +32,7 @@ stop () {
 
 run () {
     echo "running analyzer"
-    /usr/bin/env python $BASEDIR/src/analyzer/analyzer-agent.py run
+    python $BASEDIR/src/analyzer/analyzer-agent.py run
 }
 
 # See how we were called.

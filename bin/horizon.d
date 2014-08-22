@@ -7,7 +7,7 @@ RETVAL=0
 
 start () {
     rm $BASEDIR/src/horizon/*.pyc
-    /usr/bin/env python $BASEDIR/src/horizon/horizon-agent.py start
+    /usr/local/bin/python2.7 $BASEDIR/src/horizon/horizon-agent.py start
         RETVAL=$?
         if [[ $RETVAL -eq 0 ]]; then
             echo "started horizon-agent"
@@ -20,7 +20,7 @@ start () {
 stop () {
     # TODO: write a real kill script
     ps aux | grep 'horizon-agent.py start' | grep -v grep | awk '{print $2 }' | xargs sudo kill -9
-    /usr/bin/env python $BASEDIR/src/horizon/horizon-agent.py stop
+    /usr/bin/env /usr/local/bin/python2.7 $BASEDIR/src/horizon/horizon-agent.py stop
         RETVAL=$?
         if [[ $RETVAL -eq 0 ]]; then
             echo "stopped horizon-agent"

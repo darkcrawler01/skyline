@@ -11,7 +11,7 @@ from os.path import dirname, abspath
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
 import settings
 
-REDIS_CONN = redis.StrictRedis(unix_socket_path=settings.REDIS_SOCKET_PATH)
+REDIS_CONN = RedisCluster(startup_nodes=settings.startup_nodes, decode_responses=True)
 
 app = Flask(__name__)
 app.config['PROPAGATE_EXCEPTIONS'] = True
@@ -90,3 +90,4 @@ if __name__ == "__main__":
         daemon_runner = runner.DaemonRunner(webapp)
         daemon_runner.daemon_context.files_preserve = [handler.stream]
         daemon_runner.do_action()
+

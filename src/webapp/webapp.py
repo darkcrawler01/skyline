@@ -6,6 +6,7 @@ from msgpack import Unpacker
 from flask import Flask, request, render_template
 from daemon import runner
 from os.path import dirname, abspath
+from rediscluster import RedisCluster
 
 # add the shared settings file to namespace
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
